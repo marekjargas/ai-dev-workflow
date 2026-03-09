@@ -9,8 +9,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v3
 
       - name: Install dependencies
         run: pip install google-generativeai
@@ -18,4 +17,6 @@ jobs:
       - name: Run AI agent
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          ISSUE_TITLE: ${{ github.event.issue.title }}
+          ISSUE_BODY: ${{ github.event.issue.body }}
         run: python ai_agent.py

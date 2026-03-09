@@ -1,25 +1,33 @@
-import os
+kimport os
 import google.generativeai as genai
 
-genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
+# načítanie API key z GitHub Secrets
+api_key = os.getenv("GEMINI_API_KEY")
 
+genai.configure(api_key=api_key)
+
+# model
 model = genai.GenerativeModel("gemini-1.5-flash")
 
 
-def solve_issue(issue_text):
+def solve_issue(issue_title, issue_body):
 
     prompt = f"""
-    You are a senior software developer.
+You are a senior software engineer.
 
-    Implement the following feature:
+Implement the following GitHub issue.
 
-    {issue_text}
+TITLE:
+{issue_title}
 
-    Steps:
-    1 analyze the task
-    2 propose implementation
-    3 generate code
-    """
+DESCRIPTION:
+{issue_body}
+
+Provide:
+1. short implementation plan
+2. example code
+3. explanation
+"""
 
     response = model.generate_content(prompt)
 
@@ -28,8 +36,14 @@ def solve_issue(issue_text):
 
 if __name__ == "__main__":
 
-    issue = "Create REST endpoint POST /login with JWT authentication"
+    # GitHub Actions poskytne tieto premenné
+    issue_title = os.getenv("ISSUE_TITLE")
+    issue_body = os.getenv("ISSUE_BODY")
 
-    result = solve_issue(issue)
+    result = solve_issue(issue_title, issue_body)
 
     print(result)
+
+    # uloženie výstupu
+    with open("ai_output.md", "w") as f:
+        f.write(result)
