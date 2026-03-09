@@ -1,21 +1,27 @@
 import os
-import google.generativeai as genai
+import requests
+from google import genai
 
-# načítanie API key z GitHub Secrets
+# API key
 api_key = os.getenv("GEMINI_API_KEY")
 
-genai.configure(api_key=api_key)
+# Gemini client
+client = genai.Client(api_key=api_key)
 
-# model
-model = genai.GenerativeModel("gemini-2.0-flash")
+# GitHub údaje
+issue_title = os.getenv("ISSUE_TITLE")
+issue_body = os.getenv("ISSUE_BODY")
+issue_number = os.getenv("ISSUE_NUMBER")
+repo = os.getenv("GITHUB_REPOSITORY")
+token = os.getenv("GITHUB_TOKEN")
 
 
-def solve_issue(issue_title, issue_body):
+def generate_solution():
 
     prompt = f"""
-You are a senior software engineer.
+You are a senior software developer.
 
-Implement the following GitHub issue.
+Solve this GitHub issue.
 
 TITLE:
 {issue_title}
@@ -24,26 +30,33 @@ DESCRIPTION:
 {issue_body}
 
 Provide:
-1. short implementation plan
-2. example code
-3. explanation
+- implementation plan
+- example code
 """
 
-    response = model.generate_content(prompt)
+    response = client.models.generate_content(
+        model="gemini-2.0-flash",
+        contents=prompt
+    )
 
     return response.text
 
 
-if __name__ == "__main__":
+def comment_on_issue(text):
 
-    # GitHub Actions poskytne tieto premenné
-    issue_title = os.getenv("ISSUE_TITLE")
-    issue_body = os.getenv("ISSUE_BODY")
+    url = f"https://api.github.com/repos/{repo}/issues/{issue_number}/comments"
 
-    result = solve_issue(issue_title, issue_body)
+    headers = {
+        "Authorization": f"Bearer {token}"
+    }
 
-    print(result)
+    data = {
+        "body": text
+    }
 
-    # uloženie výstupu
-    with open("ai_output.md", "w") as f:
-        f.write(result)
+    requests.post(url, headers=headers, json=data)
+
+
+solution = generate_solution()
+
+comment_on_issue(solution)
