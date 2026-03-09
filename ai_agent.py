@@ -1,4 +1,4 @@
-kimport os
+import os
 import google.generativeai as genai
 
 # načítanie API key z GitHub Secrets
