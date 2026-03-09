@@ -12,7 +12,7 @@ jobs:
       - uses: actions/checkout@v3
 
       - name: Install dependencies
-        run: pip install google-generativeai
+        run: pip install google-genai requests
 
       - name: Run AI agent
         env:
