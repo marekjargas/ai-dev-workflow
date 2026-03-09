@@ -1,0 +1,21 @@
+name: AI Developer Agent
+
+on:
+  issues:
+    types: [opened]
+
+jobs:
+  ai-dev:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Install dependencies
+        run: pip install google-generativeai
+
+      - name: Run AI agent
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: python ai_agent.py
